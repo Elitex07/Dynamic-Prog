@@ -1,32 +1,42 @@
 import java.util.*;
 
 public class cf455a {
-    static long[] dp;
     static long[] count;
-    
+    static long[] memo;
+    static int maxNum;
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int n = sc.nextInt();
-        
-        count = new long[100001];
-        
-        // Count frequencies
-        for(int i = 0; i < n; i++) {
+
+        final int MAX = 100000;
+        count = new long[MAX + 1];
+        maxNum = 0;
+
+        for (int i = 0; i < n; i++) {
             int x = sc.nextInt();
-            count[x]++;
+            if (x >= 0 && x <= MAX) {
+                count[x]++;
+                if (x > maxNum) maxNum = x;
+            }
         }
-        
-        // Initialize dp array
-        dp = new long[100001];
-        dp[0] = 0;
-        dp[1] = count[1];
-        
-        // Fill dp array iteratively
-        for(int i = 2; i <= 100000; i++) {
-            dp[i] = Math.max(dp[i-1], dp[i-2] + i * count[i]);
-        }
-        
-        System.out.println(dp[100000]);
+
+        // ensure at least size 2 for base indexing
+        memo = new long[maxNum + 1 < 2 ? 2 : maxNum + 1];
+        Arrays.fill(memo, -1L);
+
+        System.out.println(solve(maxNum));
         sc.close();
+    }
+
+    private static long solve(int i) {
+        if (i <= 0) return 0L;
+        if (i == 1) return count[1];
+        if (memo[i] != -1L) return memo[i];
+
+        long skip = solve(i - 1);
+        long take = solve(i - 2) + (long)i * count[i];
+        memo[i] = Math.max(skip, take);
+        return memo[i];
     }
 }
